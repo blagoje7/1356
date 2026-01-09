@@ -7,7 +7,7 @@ export async function POST({ request }) {
     const REPO_OWNER = import.meta.env.REPO_OWNER;
     const REPO_NAME = import.meta.env.REPO_NAME;
     const BRANCH = import.meta.env.BRANCH || 'main';
-    const PASSWORD_HASH = import.meta.env.PASSWORD_HASH || 'ee8c6c8f5e49c5e1e9b1ed7e5c3f7f0c8f9e3b5a7f2d4c1e9b8f7a6c5d3e2f1a0';
+    const PASSWORD_HASH = import.meta.env.PASSWORD_HASH || '6829fefe94561a77be3ceaa06999799c532424caaae91f76375966d286a7d501';
 
     // Validate environment variables
     if (!GITHUB_TOKEN || !REPO_OWNER || !REPO_NAME) {
