@@ -5,7 +5,7 @@
       "date": "2026-01-09",
       "training": true,
       "coursera": true,
-      "duolingo": false,
+      "duolingo": true,
       "meditation": false,
       "comment": "Trening zavrsen sa fizioteraapeutskim vezbama za rame.\nCourse is \"python crash course\".\n",
       "courseName": "Python crash course"
