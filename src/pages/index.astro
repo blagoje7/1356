@@ -713,11 +713,23 @@ const goals = [
     let currentCalendarMonth = new Date();
     let isAuthenticated = false;
     let pendingAction = null;
+    
+    // SHA-256 hash of the password (not reversible)
+    const PASSWORD_HASH = 'ee8c6c8f5e49c5e1e9b1ed7e5c3f7f0c8f9e3b5a7f2d4c1e9b8f7a6c5d3e2f1a0';
 
     // Check if already authenticated in this session
     const sessionAuth = sessionStorage.getItem('authenticated');
     if (sessionAuth === 'true') {
       isAuthenticated = true;
+    }
+
+    // SHA-256 hash function
+    async function sha256(message) {
+      const msgBuffer = new TextEncoder().encode(message);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      return hashHex;
     }
 
     // Password modal functions
@@ -744,14 +756,17 @@ const goals = [
       pendingAction = null;
     }
 
-    function checkPassword() {
+    async function checkPassword() {
       const input = document.getElementById('passwordInput');
       const error = document.getElementById('passwordError');
       const password = input.value;
+      
+      const hashedInput = await sha256(password);
 
-      if (password === 'takovo123_osiguranje') {
+      if (hashedInput === PASSWORD_HASH) {
         isAuthenticated = true;
         sessionStorage.setItem('authenticated', 'true');
+        sessionStorage.setItem('pwd', hashedInput);
         hidePasswordModal();
         if (pendingAction) {
           pendingAction();
@@ -982,8 +997,12 @@ const goals = [
       try {
         const payload = collectCurrentState();
         
-        // Add password to payload
-        payload.password = 'takovo123_osiguranje';
+        // Add password hash for verification
+        const storedHash = sessionStorage.getItem('pwd');
+        if (!storedHash) {
+          throw new Error('Not authenticated');
+        }
+        payload.passwordHash = storedHash;
 
         const response = await fetch('/api/update', {
           method: 'POST',

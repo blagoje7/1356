@@ -7,8 +7,7 @@ A static Astro site deployed on Netlify that tracks your daily goals with persis
 - 🎯 Track 4 daily goals: Training, Coursera Course, Duolingo, and Meditation
 - � Daily entries with dates - tracks your progress each day
 - 📆 **Calendar view** - visualize your progress over time with color-coded days
-- 💬 Daily comment/notes field for reflections
-- 🔄 Auto-sync on every change (2 second debounce)
+- 💬 Daily comment/notes field for reflections- 🔒 **Password protection** - prevents unauthorized changes- 🔄 Auto-sync on every change (2 second debounce)
 - 💾 State persistence without a database (using GitHub API)
 - 🚀 Static site with automatic rebuilds via Netlify
 - 📱 Beautiful, responsive dashboard UI
@@ -76,6 +75,8 @@ Go to your Netlify site dashboard → **Site configuration** → **Environment v
 - `REPO_OWNER`: `blagoje7`
 - `REPO_NAME`: `1356`
 - `BRANCH`: `main`
+
+**Note**: Password protection is built-in with SHA-256 hashing for security.
 
 ### 5. Enable Automatic Deployments
 
