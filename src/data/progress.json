@@ -6,7 +6,7 @@
       "training": true,
       "coursera": true,
       "duolingo": true,
-      "meditation": false,
+      "meditation": true,
       "comment": "Trening zavrsen sa fizioteraapeutskim vezbama za rame.\nCourse is \"python crash course\".\n",
       "courseName": "Python crash course"
     }
