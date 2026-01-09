@@ -7,6 +7,7 @@ export async function POST({ request }) {
     const REPO_OWNER = import.meta.env.REPO_OWNER;
     const REPO_NAME = import.meta.env.REPO_NAME;
     const BRANCH = import.meta.env.BRANCH || 'main';
+    const PASSWORD = import.meta.env.PASSWORD || 'takovo123_osiguranje';
 
     // Validate environment variables
     if (!GITHUB_TOKEN || !REPO_OWNER || !REPO_NAME) {
@@ -19,7 +20,20 @@ export async function POST({ request }) {
     }
 
     // Parse incoming data
-    const newData = await request.json();
+    const requestData = await request.json();
+    
+    // Check password
+    if (requestData.password !== PASSWORD) {
+      return new Response(JSON.stringify({ 
+        error: 'Unauthorized: Invalid password' 
+      }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Remove password from data before saving
+    const { password, ...newData } = requestData;
 
     // GitHub API URLs
     const filePath = 'src/data/progress.json';
