@@ -93,7 +93,7 @@ const goals = [
     }
 
     .container {
-      max-width: 900px;
+      max-width: 1200px;
       margin: 0 auto;
       position: relative;
       z-index: 2;
@@ -541,6 +541,8 @@ const goals = [
       gap: 0.3rem;
       margin-bottom: 0.2rem;
       font-weight: 600;
+      white-space: nowrap; /* Prevent wrapping */
+      color: #FFFFFF; /* Keep text white */
     }
 
     .calendar-day-task .icon {
@@ -549,21 +551,14 @@ const goals = [
       flex-shrink: 0;
     }
 
-    .calendar-day-task.completed {
-      color: #00FF00;
-    }
-
+    /* Only color the icons */
     .calendar-day-task.completed .icon {
-      color: #00FF00;
+      color: #00FF00 !important;
       text-shadow: 0 0 8px rgba(0,255,0,0.9);
     }
 
-    .calendar-day-task.incomplete {
-      color: #FF0000;
-    }
-
     .calendar-day-task.incomplete .icon {
-      color: #FF0000;
+      color: #FF0000 !important;
       text-shadow: 0 0 8px rgba(255,0,0,0.9);
     }
 
@@ -1173,7 +1168,7 @@ const goals = [
           tasks.forEach(task => {
             const taskEl = document.createElement('div');
             taskEl.className = `calendar-day-task ${task.completed ? 'completed' : 'incomplete'}`;
-            taskEl.innerHTML = `<span class="icon">${task.completed ? '✓' : '✗'}</span> ${task.name}`;
+            taskEl.innerHTML = `<span class="icon">${task.completed ? '✓' : '✗'}</span> <span class="name">${task.name}</span>`;
             taskList.appendChild(taskEl);
           });
           
