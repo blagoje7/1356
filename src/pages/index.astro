@@ -470,9 +470,9 @@ const goals = [
     }
 
     .calendar-day {
-      height: 160px;
-      min-height: 160px;
-      max-height: 160px;
+      height: 200px;
+      min-height: 200px;
+      max-height: 200px;
       display: flex;
       flex-direction: column;
       align-items: flex-start;
@@ -482,7 +482,7 @@ const goals = [
       transition: all 0.3s ease;
       position: relative;
       padding: 0.5rem;
-      border: 2px solid rgba(233,84,32,0.5);
+      border: 2px solid #E95420;
       background: rgba(20, 0, 15, 0.95);
       color: #FFFFFF;
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
@@ -497,8 +497,8 @@ const goals = [
 
     .calendar-day.empty {
       cursor: default;
-      opacity: 0.2;
-      border-color: rgba(233,84,32,0.1);
+      opacity: 0.3;
+      border-color: #E95420;
     }
 
     .calendar-day.empty:hover {
@@ -606,75 +606,186 @@ const goals = [
     }
 
     .day-details {
-      background: white;
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      margin-top: 1rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.85);
       display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10001;
+      padding: 2rem;
     }
 
     .day-details.visible {
-      display: block;
+      display: flex;
+    }
+
+    .day-details-content {
+      background: rgba(44, 0, 30, 0.98);
+      border: 2px solid #E95420;
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 600px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 0 30px rgba(233,84,32,0.6), inset 0 0 30px rgba(233,84,32,0.1);
+    }
+
+    .day-details-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      width: 32px;
+      height: 32px;
+      background: rgba(0,0,0,0.5);
+      border: 2px solid #DF382C;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #DF382C;
+      transition: all 0.3s ease;
+      line-height: 1;
+    }
+
+    .day-details-close:hover {
+      background: #DF382C;
+      color: #2C001E;
+      box-shadow: 0 0 15px rgba(223,56,44,0.8);
+      transform: rotate(90deg);
     }
 
     .day-details h3 {
-      font-size: 1.25rem;
-      margin-bottom: 1rem;
-      color: #333;
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      margin-right: 2rem;
+      color: #E95420;
+      text-shadow: 0 0 10px #E95420;
+      letter-spacing: 0.1rem;
     }
 
     .day-details-list {
       list-style: none;
+      margin-bottom: 1.5rem;
     }
 
     .day-details-list li {
-      padding: 0.75rem;
-      margin-bottom: 0.5rem;
-      background: #f8f9fa;
-      border-radius: 6px;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      background: rgba(0,0,0,0.5);
+      border: 2px solid rgba(233,84,32,0.3);
+      border-radius: 8px;
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      font-size: 1rem;
+      gap: 1rem;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+    }
+
+    .day-details-list li:hover {
+      background: rgba(0,0,0,0.7);
+      border-color: #E95420;
+      transform: translateX(4px);
     }
 
     .day-details-list li .icon {
-      font-size: 1.25rem;
-      font-weight: 600;
+      font-size: 1.5rem;
+      font-weight: 700;
     }
 
     .day-details-list li.completed {
-      background: #e8f5e9;
+      border-color: #77DD77;
+      background: rgba(119,221,119,0.1);
     }
 
     .day-details-list li.completed .icon {
-      color: #4caf50;
+      color: #77DD77;
+      text-shadow: 0 0 10px rgba(119,221,119,0.8);
+    }
+
+    .day-details-list li.completed span:not(.icon) {
+      color: #77DD77;
+    }
+
+    .day-details-list li.incomplete {
+      border-color: #DF382C;
+      background: rgba(223,56,44,0.1);
     }
 
     .day-details-list li.incomplete .icon {
-      color: #f44336;
+      color: #DF382C;
+      text-shadow: 0 0 10px rgba(223,56,44,0.8);
+    }
+
+    .day-details-list li.incomplete span:not(.icon) {
+      color: #DF382C;
     }
 
     .day-details-comment {
-      margin-top: 1rem;
-      padding: 1rem;
-      background: #f8f9fa;
-      border-radius: 6px;
-      border-left: 4px solid #667eea;
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      background: linear-gradient(135deg, rgba(119,41,83,0.2) 0%, rgba(233,84,32,0.2) 100%);
+      border: 3px solid #E95420;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(233,84,32,0.6), inset 0 0 20px rgba(233,84,32,0.15);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .day-details-comment::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #772953, #E95420, #77DD77, #E95420, #772953);
+      background-size: 200% 100%;
+      animation: shimmer 3s linear infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
     }
 
     .day-details-comment h4 {
-      font-size: 0.875rem;
-      color: #666;
-      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+      color: #E95420;
+      margin-bottom: 1rem;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
+      text-shadow: 0 0 10px rgba(233,84,32,0.8);
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .day-details-comment h4::before {
+      content: '📝';
+      font-size: 1.3rem;
+      filter: drop-shadow(0 0 8px rgba(233,84,32,0.8));
     }
 
     .day-details-comment p {
-      color: #333;
-      line-height: 1.5;
+      color: #FFFFFF;
+      line-height: 1.8;
+      font-size: 1.1rem;
+      font-family: 'Courier New', monospace;
+      text-shadow: 0 0 3px rgba(255,255,255,0.3);
+      background: rgba(0,0,0,0.4);
+      padding: 1rem;
+      border-radius: 6px;
+      border-left: 4px solid #77DD77;
     }
 
     .token-expiry-reminder {
@@ -983,11 +1094,14 @@ const goals = [
       </div>
       
       <div class="day-details" id="dayDetails">
-        <h3 id="dayDetailsDate"></h3>
-        <ul class="day-details-list" id="dayDetailsList"></ul>
-        <div class="day-details-comment" id="dayDetailsComment" style="display: none;">
-          <h4>Notes</h4>
-          <p id="dayDetailsCommentText"></p>
+        <div class="day-details-content">
+          <div class="day-details-close" id="dayDetailsClose">×</div>
+          <h3 id="dayDetailsDate"></h3>
+          <ul class="day-details-list" id="dayDetailsList"></ul>
+          <div class="day-details-comment" id="dayDetailsComment" style="display: none;">
+            <h4>Daily Notes</h4>
+            <p id="dayDetailsCommentText"></p>
+          </div>
         </div>
       </div>
     </div>
@@ -1157,6 +1271,7 @@ const goals = [
         
         const dayEl = document.createElement('div');
         dayEl.className = 'calendar-day';
+        dayEl.setAttribute('data-astro-cid-j7pv25f6', '');
         if (dateString === todayDate) {
           dayEl.classList.add('today');
         }
@@ -1166,22 +1281,24 @@ const goals = [
         
         const dayNumber = document.createElement('div');
         dayNumber.className = 'calendar-day-number';
+        dayNumber.setAttribute('data-astro-cid-j7pv25f6', '');
         dayNumber.textContent = day;
         
         const dayPercentage = document.createElement('div');
         dayPercentage.className = 'calendar-day-percentage';
+        dayPercentage.setAttribute('data-astro-cid-j7pv25f6', '');
         dayPercentage.textContent = entry ? `${Math.round(percentage)}%` : '';
         if (entry) {
           dayPercentage.style.setProperty('--progress', `${percentage}%`);
         }
         
         dayEl.appendChild(dayNumber);
-        dayEl.appendChild(dayPercentage);
         
         // Add task list
         if (entry) {
           const taskList = document.createElement('div');
           taskList.className = 'calendar-day-tasks';
+          taskList.setAttribute('data-astro-cid-j7pv25f6', '');
           
           const tasks = [
             { name: 'Training', completed: entry.training },
@@ -1193,17 +1310,40 @@ const goals = [
           tasks.forEach(task => {
             const taskEl = document.createElement('div');
             taskEl.className = `calendar-day-task ${task.completed ? 'completed' : 'incomplete'}`;
-            taskEl.innerHTML = `<span class="icon">${task.completed ? '✓' : '✗'}</span> <span class="name">${task.name}</span>`;
+            taskEl.setAttribute('data-astro-cid-j7pv25f6', '');
+            
+            const iconSpan = document.createElement('span');
+            iconSpan.className = 'icon';
+            iconSpan.setAttribute('data-astro-cid-j7pv25f6', '');
+            iconSpan.textContent = task.completed ? '✓' : '✗';
+            
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'name';
+            nameSpan.setAttribute('data-astro-cid-j7pv25f6', '');
+            nameSpan.textContent = task.name;
+            
+            taskEl.appendChild(iconSpan);
+            taskEl.appendChild(document.createTextNode(' '));
+            taskEl.appendChild(nameSpan);
+            
             taskList.appendChild(taskEl);
           });
           
           dayEl.appendChild(taskList);
         }
         
+        dayEl.appendChild(dayPercentage);
+        
         dayEl.addEventListener('click', () => showDayDetails(dateString, entry));
         
         calendarGrid.appendChild(dayEl);
       }
+    }
+
+    // Close day details popup
+    function closeDayDetails() {
+      const dayDetails = document.getElementById('dayDetails');
+      dayDetails.classList.remove('visible');
     }
 
     // Show day details
@@ -1266,6 +1406,14 @@ const goals = [
       document.getElementById('todayViewBtn').classList.remove('active');
       document.getElementById('calendarViewBtn').classList.add('active');
       renderCalendar();
+    });
+
+    // Close day details when clicking close button or outside modal
+    document.getElementById('dayDetailsClose').addEventListener('click', closeDayDetails);
+    document.getElementById('dayDetails').addEventListener('click', (e) => {
+      if (e.target.id === 'dayDetails') {
+        closeDayDetails();
+      }
     });
 
     // Calendar navigation
