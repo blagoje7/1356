@@ -542,7 +542,6 @@ const goals = [
       margin-bottom: 0.2rem;
       font-weight: 600;
       white-space: nowrap; /* Prevent wrapping */
-      color: #FFFFFF; /* Keep text white */
     }
 
     .calendar-day-task .icon {
@@ -551,14 +550,22 @@ const goals = [
       flex-shrink: 0;
     }
 
-    /* Only color the icons */
-    .calendar-day-task.completed .icon {
+    /* Color entire task green or red */
+    .calendar-day-task.completed {
       color: #00FF00 !important;
+      text-shadow: 0 0 5px rgba(0,255,0,0.6);
+    }
+
+    .calendar-day-task.completed .icon {
       text-shadow: 0 0 8px rgba(0,255,0,0.9);
     }
 
-    .calendar-day-task.incomplete .icon {
+    .calendar-day-task.incomplete {
       color: #FF0000 !important;
+      text-shadow: 0 0 5px rgba(255,0,0,0.6);
+    }
+
+    .calendar-day-task.incomplete .icon {
       text-shadow: 0 0 8px rgba(255,0,0,0.9);
     }
 
@@ -576,11 +583,26 @@ const goals = [
       text-shadow: 0 0 10px rgba(255,255,255,0.8), 0 0 5px rgba(233,84,32,0.5);
       align-self: center;
       margin-top: auto;
-      background: rgba(0,0,0,0.7);
       padding: 0.2rem 0.5rem;
       border-radius: 4px;
       width: 100%;
       text-align: center;
+      position: relative;
+      overflow: hidden;
+      background: rgba(0,0,0,0.7);
+      z-index: 1;
+    }
+
+    .calendar-day-percentage::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: var(--progress, 0%);
+      background: linear-gradient(90deg, rgba(255,0,0,0.3) 0%, rgba(0,255,0,0.3) 100%);
+      z-index: -1;
+      transition: width 0.3s ease;
     }
 
     .day-details {
@@ -1149,6 +1171,9 @@ const goals = [
         const dayPercentage = document.createElement('div');
         dayPercentage.className = 'calendar-day-percentage';
         dayPercentage.textContent = entry ? `${Math.round(percentage)}%` : '';
+        if (entry) {
+          dayPercentage.style.setProperty('--progress', `${percentage}%`);
+        }
         
         dayEl.appendChild(dayNumber);
         dayEl.appendChild(dayPercentage);
