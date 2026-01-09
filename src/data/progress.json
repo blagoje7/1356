@@ -3,7 +3,7 @@
   "dailyEntries": [
     {
       "date": "2026-01-09",
-      "training": true,
+      "training": false,
       "coursera": false,
       "duolingo": false,
       "meditation": false,
