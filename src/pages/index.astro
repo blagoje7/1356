@@ -1,0 +1,899 @@
+---
+import progressData from '../data/progress.json';
+
+const today = new Date().toISOString().split('T')[0];
+const todayEntry = progressData.dailyEntries.find(e => e.date === today);
+const hasToday = !!todayEntry;
+
+// If no entry for today, create a default one
+const currentEntry = hasToday ? todayEntry : {
+  date: today,
+  training: false,
+  coursera: false,
+  duolingo: false,
+  meditation: false,
+  comment: ''
+};
+
+const goals = [
+  { id: 'training', name: 'Training', completed: currentEntry.training },
+  { id: 'coursera', name: 'Coursera Course', completed: currentEntry.coursera },
+  { id: 'duolingo', name: 'Duolingo', completed: currentEntry.duolingo },
+  { id: 'meditation', name: 'Meditation', completed: currentEntry.meditation }
+];
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1356 Progress Tracker</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 2rem;
+      color: #333;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: white;
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .subtitle {
+      text-align: center;
+      color: rgba(255,255,255,0.9);
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+
+    .today-date {
+      text-align: center;
+      color: rgba(255,255,255,0.95);
+      margin-bottom: 2rem;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .goals-grid {
+      display: grid;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .goal-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .goal-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    .goal-card.completed {
+      background: linear-gradient(135deg, #f6f9fc 0%, #e9f5e9 100%);
+      border: 2px solid #4caf50;
+    }
+
+    .goal-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .checkbox-wrapper {
+      position: relative;
+    }
+
+    input[type="checkbox"] {
+      width: 28px;
+      height: 28px;
+      cursor: pointer;
+      accent-color: #667eea;
+    }
+
+    .goal-name {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .goal-meta {
+      font-size: 0.875rem;
+      color: #666;
+      margin-top: 0.5rem;
+    }
+
+    .comment-section {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    .comment-section h2 {
+      font-size: 1.25rem;
+      color: #333;
+      margin-bottom: 1rem;
+    }
+
+    .comment-section textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 0.75rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+      resize: vertical;
+      transition: border-color 0.2s;
+    }
+
+    .comment-section textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .coursera-input {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    .coursera-input h2 {
+      font-size: 1.25rem;
+      color: #333;
+      margin-bottom: 1rem;
+    }
+
+    .coursera-input input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .coursera-input input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .auto-sync-note {
+      text-align: center;
+      color: rgba(255,255,255,0.8);
+      font-size: 0.9rem;
+      margin-top: 1rem;
+      font-style: italic;
+    }
+
+    .view-toggle {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+
+    .view-toggle button {
+      padding: 0.75rem 1.5rem;
+      background: white;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: #667eea;
+      transition: all 0.2s;
+    }
+
+    .view-toggle button.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-color: transparent;
+    }
+
+    .view-toggle button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .calendar-view {
+      display: none;
+    }
+
+    .calendar-view.active {
+      display: block;
+    }
+
+    .today-view {
+      display: block;
+    }
+
+    .today-view.hidden {
+      display: none;
+    }
+
+    .calendar-container {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .calendar-header h2 {
+      font-size: 1.5rem;
+      color: #333;
+    }
+
+    .calendar-nav {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .calendar-nav button {
+      padding: 0.5rem 1rem;
+      background: #f0f0f0;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    .calendar-nav button:hover {
+      background: #e0e0e0;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.5rem;
+    }
+
+    .calendar-day-header {
+      text-align: center;
+      font-weight: 600;
+      color: #666;
+      padding: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .calendar-day {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+      padding: 0.5rem;
+      border: 2px solid transparent;
+    }
+
+    .calendar-day:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .calendar-day.empty {
+      cursor: default;
+      opacity: 0.3;
+    }
+
+    .calendar-day.empty:hover {
+      transform: none;
+      box-shadow: none;
+    }
+
+    .calendar-day.today {
+      border-color: #667eea;
+      border-width: 3px;
+    }
+
+    .calendar-day-number {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 0.25rem;
+      color: #333;
+    }
+
+    .calendar-day-percentage {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .day-details {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      margin-top: 1rem;
+      display: none;
+    }
+
+    .day-details.visible {
+      display: block;
+    }
+
+    .day-details h3 {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+      color: #333;
+    }
+
+    .day-details-list {
+      list-style: none;
+    }
+
+    .day-details-list li {
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+      background: #f8f9fa;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1rem;
+    }
+
+    .day-details-list li .icon {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .day-details-list li.completed {
+      background: #e8f5e9;
+    }
+
+    .day-details-list li.completed .icon {
+      color: #4caf50;
+    }
+
+    .day-details-list li.incomplete .icon {
+      color: #f44336;
+    }
+
+    .day-details-comment {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 6px;
+      border-left: 4px solid #667eea;
+    }
+
+    .day-details-comment h4 {
+      font-size: 0.875rem;
+      color: #666;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .day-details-comment p {
+      color: #333;
+      line-height: 1.5;
+    }
+
+    .token-expiry-reminder {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      font-size: 0.875rem;
+      color: #333;
+      border-left: 4px solid #ff9800;
+      max-width: 250px;
+      z-index: 1000;
+    }
+
+    .token-expiry-reminder strong {
+      display: block;
+      color: #ff9800;
+      margin-bottom: 0.25rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .token-expiry-reminder .date {
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    @media (max-width: 768px) {
+      .token-expiry-reminder {
+        bottom: 0.5rem;
+        right: 0.5rem;
+        left: 0.5rem;
+        max-width: none;
+      }
+    }
+
+    .sync-button {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: none;
+    }
+
+    .sync-button.manual-mode {
+      display: block;
+    }
+
+    .sync-button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    }
+
+    .sync-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .status-message {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 500;
+      display: none;
+    }
+
+    .status-message.visible {
+      display: block;
+    }
+
+    .status-message.deploying {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeeba;
+    }
+
+    .status-message.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .status-message.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(0,0,0,0.1);
+      border-left-color: #856404;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 0.5rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>1356</h1>
+    <p class="subtitle">Track your daily goals</p>
+    
+    <div class="view-toggle">
+      <button id="todayViewBtn" class="active">Today</button>
+      <button id="calendarViewBtn">Calendar</button>
+    </div>
+
+    <div class="today-view" id="todayView">
+      <p class="today-date">{new Date(today).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+
+      <div class="coursera-input">
+      <h2>Current Course</h2>
+      <input 
+        type="text" 
+        id="currentCourse" 
+        placeholder="Enter current Coursera course name"
+        value={progressData.currentCourse || ''}
+      />
+    </div>
+
+    <div class="goals-grid" id="goalsGrid">
+      {goals.map((goal) => (
+        <div class="goal-card" data-goal-id={goal.id} class:list={[{ completed: goal.completed }]}>
+          <div class="goal-header">
+            <div class="checkbox-wrapper">
+              <input 
+                type="checkbox" 
+                id={`goal-${goal.id}`}
+                data-goal-id={goal.id}
+                checked={goal.completed}
+              />
+            </div>
+            <span class="goal-name">{goal.name}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div class="comment-section">
+      <h2>Daily Notes</h2>
+      <textarea 
+        id="dailyComment" 
+        placeholder="How did today go? Any thoughts or reflections..."
+      >{currentEntry.comment}</textarea>
+    </div>
+
+    <button class="sync-button" id="syncButton">
+      Sync to GitHub
+    </button>
+
+    <p class="auto-sync-note">Auto-syncing on every change...</p>
+
+    <div class="status-message" id="statusMessage"></div>
+    </div>
+
+    <div class="calendar-view" id="calendarView">
+      <div class="calendar-container">
+        <div class="calendar-header">
+          <h2 id="calendarMonthYear"></h2>
+          <div class="calendar-nav">
+            <button id="prevMonth">←</button>
+            <button id="todayBtn">Today</button>
+            <button id="nextMonth">→</button>
+          </div>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+      </div>
+      
+      <div class="day-details" id="dayDetails">
+        <h3 id="dayDetailsDate"></h3>
+        <ul class="day-details-list" id="dayDetailsList"></ul>
+        <div class="day-details-comment" id="dayDetailsComment" style="display: none;">
+          <h4>Notes</h4>
+          <p id="dayDetailsCommentText"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="token-expiry-reminder">
+    <strong>⚠️ Token Reminder</strong>
+    GitHub token expires: <span class="date">Jan 9, 2027</span>
+  </div>
+
+  <script is:inline define:vars={{ initialData: progressData, todayDate: today, initialEntry: currentEntry }}>
+    let currentData = JSON.parse(JSON.stringify(initialData));
+    let isSyncing = false;
+    let syncTimeout = null;
+    const AUTO_SYNC_DELAY = 2000; // 2 seconds after last change
+    let currentCalendarMonth = new Date();
+
+    // Helper to get color based on completion percentage
+    function getColorForPercentage(percentage) {
+      // Red (#f44336) to Green (#00ff00)
+      const red = { r: 244, g: 67, b: 54 };
+      const green = { r: 0, g: 255, b: 0 };
+      
+      const ratio = percentage / 100;
+      const r = Math.round(red.r + (green.r - red.r) * ratio);
+      const g = Math.round(red.g + (green.g - red.g) * ratio);
+      const b = Math.round(red.b + (green.b - red.b) * ratio);
+      
+      return `rgb(${r}, ${g}, ${b})`;
+    }
+
+    // Calculate completion percentage for a day
+    function getCompletionPercentage(entry) {
+      if (!entry) return 0;
+      const tasks = [entry.training, entry.coursera, entry.duolingo, entry.meditation];
+      const completed = tasks.filter(t => t).length;
+      return (completed / 4) * 100;
+    }
+
+    // Render calendar
+    function renderCalendar() {
+      const calendarGrid = document.getElementById('calendarGrid');
+      const monthYearEl = document.getElementById('calendarMonthYear');
+      
+      const year = currentCalendarMonth.getFullYear();
+      const month = currentCalendarMonth.getMonth();
+      
+      monthYearEl.textContent = new Date(year, month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const firstDayOfWeek = firstDay.getDay();
+      const daysInMonth = lastDay.getDate();
+      
+      calendarGrid.innerHTML = '';
+      
+      // Day headers
+      const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      dayHeaders.forEach(day => {
+        const header = document.createElement('div');
+        header.className = 'calendar-day-header';
+        header.textContent = day;
+        calendarGrid.appendChild(header);
+      });
+      
+      // Empty cells before first day
+      for (let i = 0; i < firstDayOfWeek; i++) {
+        const emptyDay = document.createElement('div');
+        emptyDay.className = 'calendar-day empty';
+        calendarGrid.appendChild(emptyDay);
+      }
+      
+      // Day cells
+      for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, month, day);
+        const dateString = date.toISOString().split('T')[0];
+        const entry = currentData.dailyEntries.find(e => e.date === dateString);
+        const percentage = getCompletionPercentage(entry);
+        
+        const dayEl = document.createElement('div');
+        dayEl.className = 'calendar-day';
+        if (dateString === todayDate) {
+          dayEl.classList.add('today');
+        }
+        
+        dayEl.style.backgroundColor = getColorForPercentage(percentage);
+        
+        const dayNumber = document.createElement('div');
+        dayNumber.className = 'calendar-day-number';
+        dayNumber.textContent = day;
+        
+        const dayPercentage = document.createElement('div');
+        dayPercentage.className = 'calendar-day-percentage';
+        dayPercentage.textContent = entry ? `${Math.round(percentage)}%` : '';
+        
+        dayEl.appendChild(dayNumber);
+        dayEl.appendChild(dayPercentage);
+        
+        dayEl.addEventListener('click', () => showDayDetails(dateString, entry));
+        
+        calendarGrid.appendChild(dayEl);
+      }
+    }
+
+    // Show day details
+    function showDayDetails(dateString, entry) {
+      const dayDetails = document.getElementById('dayDetails');
+      const dayDetailsDate = document.getElementById('dayDetailsDate');
+      const dayDetailsList = document.getElementById('dayDetailsList');
+      const dayDetailsComment = document.getElementById('dayDetailsComment');
+      const dayDetailsCommentText = document.getElementById('dayDetailsCommentText');
+      
+      const date = new Date(dateString + 'T00:00:00');
+      dayDetailsDate.textContent = date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      
+      if (!entry) {
+        dayDetailsList.innerHTML = '<li style="text-align: center; color: #999;">No data for this day</li>';
+        dayDetailsComment.style.display = 'none';
+        dayDetails.classList.add('visible');
+        return;
+      }
+      
+      const goals = [
+        { name: 'Training', completed: entry.training },
+        { name: 'Coursera Course', completed: entry.coursera },
+        { name: 'Duolingo', completed: entry.duolingo },
+        { name: 'Meditation', completed: entry.meditation }
+      ];
+      
+      dayDetailsList.innerHTML = '';
+      goals.forEach(goal => {
+        const li = document.createElement('li');
+        li.className = goal.completed ? 'completed' : 'incomplete';
+        li.innerHTML = `
+          <span class="icon">${goal.completed ? '✓' : '✗'}</span>
+          <span>${goal.name}</span>
+        `;
+        dayDetailsList.appendChild(li);
+      });
+      
+      if (entry.comment && entry.comment.trim()) {
+        dayDetailsComment.style.display = 'block';
+        dayDetailsCommentText.textContent = entry.comment;
+      } else {
+        dayDetailsComment.style.display = 'none';
+      }
+      
+      dayDetails.classList.add('visible');
+    }
+
+    // View toggle
+    document.getElementById('todayViewBtn').addEventListener('click', () => {
+      document.getElementById('todayView').classList.remove('hidden');
+      document.getElementById('calendarView').classList.remove('active');
+      document.getElementById('todayViewBtn').classList.add('active');
+      document.getElementById('calendarViewBtn').classList.remove('active');
+    });
+
+    document.getElementById('calendarViewBtn').addEventListener('click', () => {
+      document.getElementById('todayView').classList.add('hidden');
+      document.getElementById('calendarView').classList.add('active');
+      document.getElementById('todayViewBtn').classList.remove('active');
+      document.getElementById('calendarViewBtn').classList.add('active');
+      renderCalendar();
+    });
+
+    // Calendar navigation
+    document.getElementById('prevMonth').addEventListener('click', () => {
+      currentCalendarMonth.setMonth(currentCalendarMonth.getMonth() - 1);
+      renderCalendar();
+    });
+
+    document.getElementById('nextMonth').addEventListener('click', () => {
+      currentCalendarMonth.setMonth(currentCalendarMonth.getMonth() + 1);
+      renderCalendar();
+    });
+
+    document.getElementById('todayBtn').addEventListener('click', () => {
+      currentCalendarMonth = new Date();
+      renderCalendar();
+    });
+
+    // Helper to collect current state
+    function collectCurrentState() {
+      // Get today's entry or find/create it
+      let todayEntry = currentData.dailyEntries.find(e => e.date === todayDate);
+      
+      if (!todayEntry) {
+        todayEntry = {
+          date: todayDate,
+          training: false,
+          coursera: false,
+          duolingo: false,
+          meditation: false,
+          comment: ''
+        };
+        currentData.dailyEntries.push(todayEntry);
+      }
+
+      // Update with current form values
+      todayEntry.training = document.getElementById('goal-training').checked;
+      todayEntry.coursera = document.getElementById('goal-coursera').checked;
+      todayEntry.duolingo = document.getElementById('goal-duolingo').checked;
+      todayEntry.meditation = document.getElementById('goal-meditation').checked;
+      todayEntry.comment = document.getElementById('dailyComment').value;
+      
+      currentData.currentCourse = document.getElementById('currentCourse').value;
+
+      // Sort entries by date descending (newest first)
+      currentData.dailyEntries.sort((a, b) => b.date.localeCompare(a.date));
+
+      return currentData;
+    }
+
+    // Auto-sync function
+    async function autoSync() {
+      if (isSyncing) return;
+
+      const statusMessage = document.getElementById('statusMessage');
+      isSyncing = true;
+
+      statusMessage.className = 'status-message visible deploying';
+      statusMessage.innerHTML = '<span class="spinner"></span>Syncing...';
+
+      try {
+        const payload = collectCurrentState();
+
+        const response = await fetch('/api/update', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          statusMessage.className = 'status-message visible success';
+          statusMessage.textContent = '✓ Synced successfully!';
+          
+          setTimeout(() => {
+            statusMessage.classList.remove('visible');
+          }, 3000);
+        } else {
+          statusMessage.className = 'status-message visible error';
+          statusMessage.textContent = `✗ Error: ${result.error || 'Failed to sync'}`;
+        }
+      } catch (error) {
+        statusMessage.className = 'status-message visible error';
+        statusMessage.textContent = `✗ Network error: ${error.message}`;
+      } finally {
+        isSyncing = false;
+      }
+    }
+
+    // Debounced auto-sync
+    function scheduleSync() {
+      if (syncTimeout) {
+        clearTimeout(syncTimeout);
+      }
+      syncTimeout = setTimeout(autoSync, AUTO_SYNC_DELAY);
+    }
+
+    // Update UI when checkboxes change
+    document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+      checkbox.addEventListener('change', (e) => {
+        const goalId = e.target.dataset.goalId;
+        const card = document.querySelector(`[data-goal-id="${goalId}"]`);
+        
+        if (e.target.checked) {
+          card.classList.add('completed');
+        } else {
+          card.classList.remove('completed');
+        }
+
+        scheduleSync();
+      });
+    });
+
+    // Watch for changes in inputs
+    document.getElementById('currentCourse').addEventListener('input', scheduleSync);
+    document.getElementById('dailyComment').addEventListener('input', scheduleSync);
+
+    // Sync button handler (for manual sync if needed)
+    document.getElementById('syncButton').addEventListener('click', async () => {
+      if (syncTimeout) {
+        clearTimeout(syncTimeout);
+      }
+      await autoSync();
+    });
+  </script>
+</body>
+</html>
