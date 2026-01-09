@@ -484,6 +484,7 @@ const goals = [
       padding: 0.5rem;
       border: 2px solid rgba(233,84,32,0.5);
       background: rgba(20, 0, 15, 0.95);
+      color: #FFFFFF;
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
 
@@ -1143,7 +1144,8 @@ const goals = [
           dayEl.classList.add('today');
         }
         
-        dayEl.style.backgroundColor = getColorForPercentage(percentage);
+        // Removed dynamic background color to ensure text readability
+        // dayEl.style.backgroundColor = getColorForPercentage(percentage);
         
         const dayNumber = document.createElement('div');
         dayNumber.className = 'calendar-day-number';
