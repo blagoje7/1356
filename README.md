@@ -67,14 +67,8 @@ Go to your Netlify site dashboard → **Site configuration** → **Environment v
 |---------------|-------|-------------|
 | `GITHUB_TOKEN` | `ghp_xxxxxxxxxxxxx` | Your GitHub Personal Access Token (created in step 1) |
 | `REPO_OWNER` | `your-github-username` | Your GitHub username or organization name |
-| `REPO_NAME` | `1356` | The name of your GitHub repository |
+| `REPO_NAME` | `your-repo-name` | The name of your GitHub repository |
 | `BRANCH` | `main` | The branch to update (optional, defaults to `main`) |
-
-**Example:**
-- `GITHUB_TOKEN`: `ghp_1234567890abcdef`
-- `REPO_OWNER`: `blagoje7`
-- `REPO_NAME`: `1356`
-- `BRANCH`: `main`
 
 **Note**: Password protection is built-in with SHA-256 hashing for security.
 
