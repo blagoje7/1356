@@ -12,13 +12,14 @@ const daysDiff = Math.floor((currentDate.getTime() - projectStartDate.getTime())
 const currentDayNumber = Math.max(1, Math.min(daysDiff + 1, 1356));
 
 // If no entry for today, create a default one
-const currentEntry = hasToday ? todayEntry : {
+const currentEntry = hasToday ? { ...todayEntry, courseName: (todayEntry as any).courseName || '' } : {
   date: today,
   training: false,
   coursera: false,
   duolingo: false,
   meditation: false,
-  comment: ''
+  comment: '',
+  courseName: ''
 };
 
 const goals = [
@@ -676,7 +677,9 @@ const goals = [
       list-style: none;
       margin-bottom: 1.5rem;
     }
+  </style>
 
+  <style is:global>
     .day-details-list li {
       padding: 1rem;
       margin-bottom: 0.75rem;
@@ -699,6 +702,7 @@ const goals = [
     .day-details-list li .icon {
       font-size: 1.5rem;
       font-weight: 700;
+      margin-right: 0.5rem;
     }
 
     .day-details-list li.completed {
@@ -707,12 +711,12 @@ const goals = [
     }
 
     .day-details-list li.completed .icon {
-      color: #00FF00;
+      color: #00FF00 !important;
       text-shadow: 0 0 10px rgba(0,255,0,0.8);
     }
 
     .day-details-list li.completed span:not(.icon) {
-      color: #00FF00;
+      color: #00FF00 !important;
       text-shadow: 0 0 5px rgba(0,255,0,0.6);
     }
 
@@ -722,15 +726,17 @@ const goals = [
     }
 
     .day-details-list li.incomplete .icon {
-      color: #FF0000;
+      color: #FF0000 !important;
       text-shadow: 0 0 10px rgba(255,0,0,0.8);
     }
 
     .day-details-list li.incomplete span:not(.icon) {
-      color: #FF0000;
+      color: #FF0000 !important;
       text-shadow: 0 0 5px rgba(255,0,0,0.6);
     }
+  </style>
 
+  <style>
     .day-details-comment {
       margin-top: 1.5rem;
       padding: 1.5rem;
@@ -1056,7 +1062,7 @@ const goals = [
                   type="text" 
                   id="currentCourse" 
                   placeholder="Course name..."
-                  value={progressData.currentCourse || ''}
+                  value={currentEntry.courseName || ''}
                 />
               </div>
             )}
@@ -1209,20 +1215,6 @@ const goals = [
       }
     });
 
-    // Helper to get color based on completion percentage
-    function getColorForPercentage(percentage) {
-      // Red (#f44336) to Green (#00ff00)
-      const red = { r: 244, g: 67, b: 54 };
-      const green = { r: 0, g: 255, b: 0 };
-      
-      const ratio = percentage / 100;
-      const r = Math.round(red.r + (green.r - red.r) * ratio);
-      const g = Math.round(red.g + (green.g - red.g) * ratio);
-      const b = Math.round(red.b + (green.b - red.b) * ratio);
-      
-      return `rgb(${r}, ${g}, ${b})`;
-    }
-
     // Calculate completion percentage for a day
     function getCompletionPercentage(entry) {
       if (!entry) return 0;
@@ -1277,9 +1269,6 @@ const goals = [
         if (dateString === todayDate) {
           dayEl.classList.add('today');
         }
-        
-        // Removed dynamic background color to ensure text readability
-        // dayEl.style.backgroundColor = getColorForPercentage(percentage);
         
         const dayNumber = document.createElement('div');
         dayNumber.className = 'calendar-day-number';
@@ -1366,9 +1355,13 @@ const goals = [
         return;
       }
       
+      const courseName = entry.courseName && entry.courseName.trim() 
+        ? entry.courseName 
+        : 'Coursera Course';
+      
       const goals = [
         { name: 'Training', completed: entry.training },
-        { name: 'Coursera Course', completed: entry.coursera },
+        { name: courseName, completed: entry.coursera },
         { name: 'Duolingo', completed: entry.duolingo },
         { name: 'Meditation', completed: entry.meditation }
       ];
@@ -1446,9 +1439,15 @@ const goals = [
           coursera: false,
           duolingo: false,
           meditation: false,
-          comment: ''
+          comment: '',
+          courseName: ''
         };
         currentData.dailyEntries.push(todayEntry);
+      }
+
+      // Ensure courseName property exists on existing entries
+      if (!('courseName' in todayEntry)) {
+        todayEntry.courseName = '';
       }
 
       // Update with current form values
@@ -1457,8 +1456,7 @@ const goals = [
       todayEntry.duolingo = document.getElementById('goal-duolingo').checked;
       todayEntry.meditation = document.getElementById('goal-meditation').checked;
       todayEntry.comment = document.getElementById('dailyComment').value;
-      
-      currentData.currentCourse = document.getElementById('currentCourse').value;
+      todayEntry.courseName = document.getElementById('currentCourse').value;
 
       // Sort entries by date descending (newest first)
       currentData.dailyEntries.sort((a, b) => b.date.localeCompare(a.date));
