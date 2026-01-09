@@ -5,6 +5,12 @@ const today = new Date().toISOString().split('T')[0];
 const todayEntry = progressData.dailyEntries.find(e => e.date === today);
 const hasToday = !!todayEntry;
 
+// Calculate day number (counting from project start date)
+const projectStartDate = new Date('2026-01-09'); // Adjust this to your actual start date
+const currentDate = new Date(today);
+const daysDiff = Math.floor((currentDate.getTime() - projectStartDate.getTime()) / (1000 * 60 * 60 * 24));
+const currentDayNumber = Math.max(1, Math.min(daysDiff + 1, 1356));
+
 // If no entry for today, create a default one
 const currentEntry = hasToday ? todayEntry : {
   date: today,
@@ -28,7 +34,7 @@ const goals = [
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>1356 Progress Tracker</title>
+  <title>Day {currentDayNumber} of 1356 - Progress Tracker</title>
   <style>
     * {
       margin: 0;
@@ -36,40 +42,91 @@ const goals = [
       box-sizing: border-box;
     }
 
+    @keyframes stars {
+      from { transform: translateY(0px); }
+      to { transform: translateY(-2000px); }
+    }
+
+    @keyframes glow {
+      0%, 100% { text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff; }
+      50% { text-shadow: 0 0 20px #00ffff, 0 0 30px #00ffff, 0 0 40px #00ffff, 0 0 50px #00ffff; }
+    }
+
+    @keyframes neon-border {
+      0%, 100% { box-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, inset 0 0 5px rgba(0,255,255,0.2); }
+      50% { box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff, inset 0 0 10px rgba(0,255,255,0.3); }
+    }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: 'Courier New', monospace;
+      background: #0a0e27;
+      background-image: 
+        radial-gradient(2px 2px at 20% 30%, white, transparent),
+        radial-gradient(2px 2px at 60% 70%, white, transparent),
+        radial-gradient(1px 1px at 50% 50%, white, transparent),
+        radial-gradient(1px 1px at 80% 10%, white, transparent),
+        radial-gradient(2px 2px at 90% 60%, white, transparent),
+        radial-gradient(1px 1px at 33% 75%, white, transparent);
+      background-size: 200% 200%;
+      animation: stars 100s linear infinite;
       min-height: 100vh;
       padding: 2rem;
-      color: #333;
+      color: #00ffff;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(180deg, 
+        rgba(10,14,39,0) 0%, 
+        rgba(13,27,42,0.3) 50%, 
+        rgba(10,14,39,0.6) 100%
+      );
+      pointer-events: none;
+      z-index: 1;
     }
 
     .container {
-      max-width: 800px;
+      max-width: 900px;
       margin: 0 auto;
+      position: relative;
+      z-index: 2;
     }
 
     h1 {
       text-align: center;
-      color: white;
-      font-size: 3rem;
+      color: #00ffff;
+      font-size: 4rem;
       margin-bottom: 0.5rem;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+      text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff;
+      animation: glow 2s ease-in-out infinite;
+      font-weight: 900;
+      letter-spacing: 0.3rem;
+      text-transform: uppercase;
     }
 
     .subtitle {
       text-align: center;
-      color: rgba(255,255,255,0.9);
+      color: #ff00ff;
       margin-bottom: 1rem;
       font-size: 1.1rem;
+      text-shadow: 0 0 5px #ff00ff;
+      letter-spacing: 0.2rem;
     }
 
     .today-date {
       text-align: center;
-      color: rgba(255,255,255,0.95);
+      color: #00ff88;
       margin-bottom: 2rem;
       font-size: 1.3rem;
       font-weight: 600;
+      text-shadow: 0 0 10px #00ff88;
     }
 
     .goals-grid {
@@ -79,28 +136,88 @@ const goals = [
     }
 
     .goal-card {
-      background: white;
-      border-radius: 12px;
+      background: rgba(13, 27, 42, 0.9);
+      border: 2px solid #00ffff;
+      border-radius: 8px;
       padding: 1.5rem;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 0 10px rgba(0,255,255,0.3), inset 0 0 20px rgba(0,255,255,0.1);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .goal-card::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, #00ffff, #ff00ff, #00ffff);
+      border-radius: 8px;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
 
     .goal-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+      transform: translateY(-4px);
+      box-shadow: 0 0 20px rgba(0,255,255,0.6), inset 0 0 30px rgba(0,255,255,0.2);
+    }
+
+    .goal-card:hover::before {
+      opacity: 1;
+      animation: neon-border 1.5s ease-in-out infinite;
     }
 
     .goal-card.completed {
-      background: linear-gradient(135deg, #f6f9fc 0%, #e9f5e9 100%);
-      border: 2px solid #4caf50;
+      background: rgba(0, 255, 136, 0.1);
+      border-color: #00ff88;
+      box-shadow: 0 0 15px rgba(0,255,136,0.5), inset 0 0 25px rgba(0,255,136,0.2);
     }
 
     .goal-header {
       display: flex;
       align-items: center;
       gap: 1rem;
-      margin-bottom: 0.5rem;
+    }
+
+    .goal-header.with-input {
+      justify-content: space-between;
+    }
+
+    .goal-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex: 0 0 auto;
+    }
+
+    .goal-input-inline {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .goal-input-inline input {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid #00ffff;
+      border-radius: 4px;
+      color: #00ffff;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .goal-input-inline input::placeholder {
+      color: rgba(0,255,255,0.4);
+    }
+
+    .goal-input-inline input:focus {
+      outline: none;
+      border-color: #ff00ff;
+      box-shadow: 0 0 10px rgba(255,0,255,0.5);
     }
 
     .checkbox-wrapper {
@@ -108,16 +225,44 @@ const goals = [
     }
 
     input[type="checkbox"] {
-      width: 28px;
-      height: 28px;
+      width: 24px;
+      height: 24px;
       cursor: pointer;
-      accent-color: #667eea;
+      appearance: none;
+      background: rgba(0,0,0,0.5);
+      border: 2px solid #00ffff;
+      border-radius: 4px;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    input[type="checkbox"]:hover {
+      box-shadow: 0 0 10px rgba(0,255,255,0.6);
+    }
+
+    input[type="checkbox"]:checked {
+      background: #00ff88;
+      border-color: #00ff88;
+      box-shadow: 0 0 15px rgba(0,255,136,0.8);
+    }
+
+    input[type="checkbox"]:checked::after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #0a0e27;
+      font-size: 16px;
+      font-weight: bold;
     }
 
     .goal-name {
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: #333;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #00ffff;
+      text-shadow: 0 0 5px #00ffff;
+      letter-spacing: 0.1rem;
     }
 
     .goal-meta {
@@ -127,70 +272,92 @@ const goals = [
     }
 
     .comment-section {
-      background: white;
-      border-radius: 12px;
+      background: rgba(13, 27, 42, 0.9);
+      border: 2px solid #ff00ff;
+      border-radius: 8px;
       padding: 1.5rem;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 0 10px rgba(255,0,255,0.3), inset 0 0 20px rgba(255,0,255,0.1);
       margin-bottom: 2rem;
     }
 
     .comment-section h2 {
       font-size: 1.25rem;
-      color: #333;
+      color: #ff00ff;
       margin-bottom: 1rem;
+      text-shadow: 0 0 5px #ff00ff;
+      letter-spacing: 0.1rem;
     }
 
     .comment-section textarea {
       width: 100%;
       min-height: 100px;
       padding: 0.75rem;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid #ff00ff;
+      border-radius: 4px;
+      color: #ff00ff;
+      font-family: 'Courier New', monospace;
       font-size: 1rem;
-      font-family: inherit;
       resize: vertical;
-      transition: border-color 0.2s;
+      transition: all 0.3s ease;
+    }
+
+    .comment-section textarea::placeholder {
+      color: rgba(255,0,255,0.4);
     }
 
     .comment-section textarea:focus {
       outline: none;
-      border-color: #667eea;
+      border-color: #00ffff;
+      box-shadow: 0 0 10px rgba(0,255,255,0.5);
     }
 
     .coursera-input {
-      background: white;
-      border-radius: 12px;
+      background: rgba(13, 27, 42, 0.9);
+      border: 2px solid #00ff88;
+      border-radius: 8px;
       padding: 1.5rem;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 0 10px rgba(0,255,136,0.3), inset 0 0 20px rgba(0,255,136,0.1);
       margin-bottom: 2rem;
     }
 
     .coursera-input h2 {
       font-size: 1.25rem;
-      color: #333;
+      color: #00ff88;
       margin-bottom: 1rem;
+      text-shadow: 0 0 5px #00ff88;
+      letter-spacing: 0.1rem;
     }
 
     .coursera-input input {
       width: 100%;
       padding: 0.75rem;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid #00ff88;
+      border-radius: 4px;
+      color: #00ff88;
+      font-family: 'Courier New', monospace;
       font-size: 1rem;
-      transition: border-color 0.2s;
+      transition: all 0.3s ease;
+    }
+
+    .coursera-input input::placeholder {
+      color: rgba(0,255,136,0.4);
     }
 
     .coursera-input input:focus {
       outline: none;
-      border-color: #667eea;
+      border-color: #00ffff;
+      box-shadow: 0 0 10px rgba(0,255,255,0.5);
     }
 
     .auto-sync-note {
       text-align: center;
-      color: rgba(255,255,255,0.8);
+      color: rgba(0,255,255,0.6);
       font-size: 0.9rem;
       margin-top: 1rem;
       font-style: italic;
+      text-shadow: 0 0 5px rgba(0,255,255,0.3);
     }
 
     .view-toggle {
@@ -202,25 +369,28 @@ const goals = [
 
     .view-toggle button {
       padding: 0.75rem 1.5rem;
-      background: white;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-radius: 8px;
+      background: rgba(0,0,0,0.5);
+      border: 2px solid #00ffff;
+      border-radius: 4px;
       font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
-      color: #667eea;
-      transition: all 0.2s;
+      color: #00ffff;
+      font-family: 'Courier New', monospace;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.1rem;
     }
 
     .view-toggle button.active {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border-color: transparent;
+      background: #00ffff;
+      color: #0a0e27;
+      box-shadow: 0 0 20px rgba(0,255,255,0.8);
     }
 
     .view-toggle button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 0 15px rgba(0,255,255,0.6);
     }
 
     .calendar-view {
@@ -240,10 +410,11 @@ const goals = [
     }
 
     .calendar-container {
-      background: white;
-      border-radius: 12px;
+      background: rgba(13, 27, 42, 0.9);
+      border: 2px solid #00ffff;
+      border-radius: 8px;
       padding: 2rem;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 0 20px rgba(0,255,255,0.3), inset 0 0 30px rgba(0,255,255,0.1);
       margin-bottom: 2rem;
     }
 
@@ -256,7 +427,9 @@ const goals = [
 
     .calendar-header h2 {
       font-size: 1.5rem;
-      color: #333;
+      color: #00ffff;
+      text-shadow: 0 0 10px #00ffff;
+      letter-spacing: 0.1rem;
     }
 
     .calendar-nav {
@@ -266,16 +439,19 @@ const goals = [
 
     .calendar-nav button {
       padding: 0.5rem 1rem;
-      background: #f0f0f0;
-      border: none;
-      border-radius: 6px;
+      background: rgba(0,0,0,0.5);
+      border: 2px solid #00ffff;
+      border-radius: 4px;
       cursor: pointer;
       font-weight: 600;
-      transition: background 0.2s;
+      color: #00ffff;
+      font-family: 'Courier New', monospace;
+      transition: all 0.3s ease;
     }
 
     .calendar-nav button:hover {
-      background: #e0e0e0;
+      background: rgba(0,255,255,0.2);
+      box-shadow: 0 0 10px rgba(0,255,255,0.5);
     }
 
     .calendar-grid {
@@ -287,33 +463,37 @@ const goals = [
     .calendar-day-header {
       text-align: center;
       font-weight: 600;
-      color: #666;
+      color: #00ffff;
       padding: 0.5rem;
       font-size: 0.875rem;
+      text-shadow: 0 0 5px #00ffff;
     }
 
     .calendar-day {
-      aspect-ratio: 1;
+      min-height: 140px;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      border-radius: 8px;
+      align-items: flex-start;
+      justify-content: flex-start;
+      border-radius: 4px;
       cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: all 0.3s ease;
       position: relative;
       padding: 0.5rem;
-      border: 2px solid transparent;
+      border: 1px solid rgba(0,255,255,0.3);
+      background: rgba(13, 27, 42, 0.6);
     }
 
     .calendar-day:hover {
-      transform: scale(1.05);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      transform: translateY(-2px);
+      box-shadow: 0 0 15px rgba(0,255,255,0.4);
+      border-color: #00ffff;
     }
 
     .calendar-day.empty {
       cursor: default;
-      opacity: 0.3;
+      opacity: 0.2;
+      border-color: rgba(0,255,255,0.1);
     }
 
     .calendar-day.empty:hover {
@@ -322,21 +502,61 @@ const goals = [
     }
 
     .calendar-day.today {
-      border-color: #667eea;
-      border-width: 3px;
+      border-color: #ff00ff;
+      border-width: 2px;
+      box-shadow: 0 0 15px rgba(255,0,255,0.6);
     }
 
     .calendar-day-number {
-      font-weight: 600;
-      font-size: 1rem;
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      color: #00ffff;
+      text-shadow: 0 0 5px #00ffff;
+      align-self: center;
+    }
+
+    .calendar-day-tasks {
+      width: 100%;
+      font-size: 0.65rem;
+      line-height: 1.4;
       margin-bottom: 0.25rem;
-      color: #333;
+    }
+
+    .calendar-day-task {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-bottom: 0.15rem;
+    }
+
+    .calendar-day-task .icon {
+      font-size: 0.7rem;
+      font-weight: bold;
+    }
+
+    .calendar-day-task.completed .icon {
+      color: #00ff88;
+    }
+
+    .calendar-day-task.incomplete .icon {
+      color: #ff0055;
+    }
+
+    .calendar-day-task .name {
+      color: rgba(0,255,255,0.7);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .calendar-day-percentage {
       font-size: 0.75rem;
-      font-weight: 600;
-      color: #333;
+      font-weight: 700;
+      color: #00ffff;
+      text-shadow: 0 0 5px #00ffff;
+      align-self: center;
+      margin-top: auto;
     }
 
     .day-details {
@@ -415,29 +635,32 @@ const goals = [
       position: fixed;
       bottom: 1rem;
       right: 1rem;
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(13, 27, 42, 0.95);
       padding: 0.75rem 1rem;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      border-radius: 4px;
+      border: 2px solid #ffaa00;
+      box-shadow: 0 0 15px rgba(255,170,0,0.4);
       font-size: 0.875rem;
-      color: #333;
-      border-left: 4px solid #ff9800;
+      color: #ffaa00;
       max-width: 250px;
       z-index: 1000;
+      font-family: 'Courier New', monospace;
     }
 
     .token-expiry-reminder strong {
       display: block;
-      color: #ff9800;
+      color: #ffaa00;
       margin-bottom: 0.25rem;
       font-size: 0.75rem;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      text-shadow: 0 0 5px rgba(255,170,0,0.5);
     }
 
     .token-expiry-reminder .date {
       font-weight: 600;
-      color: #667eea;
+      color: #00ffff;
+      text-shadow: 0 0 5px rgba(0,255,255,0.5);
     }
 
     @media (max-width: 768px) {
@@ -467,32 +690,44 @@ const goals = [
     }
 
     .password-modal-content {
-      background: white;
+      background: rgba(13, 27, 42, 0.98);
       padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      border-radius: 8px;
+      border: 2px solid #00ffff;
+      box-shadow: 0 0 30px rgba(0,255,255,0.5), inset 0 0 30px rgba(0,255,255,0.1);
       max-width: 400px;
       width: 90%;
     }
 
     .password-modal h3 {
       margin-bottom: 1rem;
-      color: #333;
+      color: #00ffff;
       font-size: 1.5rem;
+      text-shadow: 0 0 10px #00ffff;
+      letter-spacing: 0.1rem;
     }
 
     .password-modal input {
       width: 100%;
       padding: 0.75rem;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
+      background: rgba(0,0,0,0.5);
+      border: 2px solid #00ffff;
+      border-radius: 4px;
       font-size: 1rem;
       margin-bottom: 1rem;
+      color: #00ffff;
+      font-family: 'Courier New', monospace;
+      transition: all 0.3s ease;
+    }
+
+    .password-modal input::placeholder {
+      color: rgba(0,255,255,0.4);
     }
 
     .password-modal input:focus {
       outline: none;
-      border-color: #667eea;
+      border-color: #ff00ff;
+      box-shadow: 0 0 15px rgba(255,0,255,0.5);
     }
 
     .password-modal-buttons {
@@ -504,28 +739,44 @@ const goals = [
       flex: 1;
       padding: 0.75rem;
       border: none;
-      border-radius: 8px;
+      border-radius: 4px;
       font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
+      font-family: 'Courier New', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.1rem;
+      transition: all 0.3s ease;
     }
 
     .password-modal .btn-submit {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+      background: #00ffff;
+      color: #0a0e27;
+      border: 2px solid #00ffff;
+      box-shadow: 0 0 10px rgba(0,255,255,0.5);
+    }
+
+    .password-modal .btn-submit:hover {
+      box-shadow: 0 0 20px rgba(0,255,255,0.8);
     }
 
     .password-modal .btn-cancel {
-      background: #f0f0f0;
-      color: #666;
+      background: rgba(0,0,0,0.5);
+      color: #ff0055;
+      border: 2px solid #ff0055;
+      box-shadow: 0 0 10px rgba(255,0,85,0.3);
+    }
+
+    .password-modal .btn-cancel:hover {
+      box-shadow: 0 0 20px rgba(255,0,85,0.6);
     }
 
     .password-modal .error {
-      color: #f44336;
+      color: #ff0055;
       font-size: 0.875rem;
       margin-top: -0.5rem;
       margin-bottom: 0.5rem;
+      text-shadow: 0 0 5px rgba(255,0,85,0.5);
     }
 
     .sync-button {
@@ -560,10 +811,13 @@ const goals = [
     .status-message {
       margin-top: 1rem;
       padding: 1rem;
-      border-radius: 8px;
+      border-radius: 4px;
       text-align: center;
-      font-weight: 500;
+      font-weight: 600;
       display: none;
+      border: 2px solid;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 0.05rem;
     }
 
     .status-message.visible {
@@ -571,21 +825,24 @@ const goals = [
     }
 
     .status-message.deploying {
-      background: #fff3cd;
-      color: #856404;
-      border: 1px solid #ffeeba;
+      background: rgba(255,165,0,0.1);
+      color: #ffaa00;
+      border-color: #ffaa00;
+      box-shadow: 0 0 10px rgba(255,170,0,0.3);
     }
 
     .status-message.success {
-      background: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
+      background: rgba(0,255,136,0.1);
+      color: #00ff88;
+      border-color: #00ff88;
+      box-shadow: 0 0 10px rgba(0,255,136,0.3);
     }
 
     .status-message.error {
-      background: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
+      background: rgba(255,0,0,0.1);
+      color: #ff0055;
+      border-color: #ff0055;
+      box-shadow: 0 0 10px rgba(255,0,85,0.3);
     }
 
     .spinner {
@@ -607,7 +864,7 @@ const goals = [
 </head>
 <body>
   <div class="container">
-    <h1>1356</h1>
+    <h1>1356 <span style="font-size: 1.5rem; color: #ff00ff;">Day {currentDayNumber} of 1356</span></h1>
     <p class="subtitle">Track your daily goals</p>
     
     <div class="view-toggle">
@@ -618,29 +875,31 @@ const goals = [
     <div class="today-view" id="todayView">
       <p class="today-date">{new Date(today).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
 
-      <div class="coursera-input">
-      <h2>Current Course</h2>
-      <input 
-        type="text" 
-        id="currentCourse" 
-        placeholder="Enter current Coursera course name"
-        value={progressData.currentCourse || ''}
-      />
-    </div>
-
     <div class="goals-grid" id="goalsGrid">
       {goals.map((goal) => (
         <div class="goal-card" data-goal-id={goal.id} class:list={[{ completed: goal.completed }]}>
-          <div class="goal-header">
-            <div class="checkbox-wrapper">
-              <input 
-                type="checkbox" 
-                id={`goal-${goal.id}`}
-                data-goal-id={goal.id}
-                checked={goal.completed}
-              />
+          <div class:list={["goal-header", { "with-input": goal.id === 'coursera' }]}>
+            <div class="goal-left">
+              <div class="checkbox-wrapper">
+                <input 
+                  type="checkbox" 
+                  id={`goal-${goal.id}`}
+                  data-goal-id={goal.id}
+                  checked={goal.completed}
+                />
+              </div>
+              <span class="goal-name">{goal.name}</span>
             </div>
-            <span class="goal-name">{goal.name}</span>
+            {goal.id === 'coursera' && (
+              <div class="goal-input-inline">
+                <input 
+                  type="text" 
+                  id="currentCourse" 
+                  placeholder="Course name..."
+                  value={progressData.currentCourse || ''}
+                />
+              </div>
+            )}
           </div>
         </div>
       ))}
@@ -694,13 +953,13 @@ const goals = [
 
   <div class="password-modal" id="passwordModal">
     <div class="password-modal-content">
-      <h3>🔒 Enter Password</h3>
-      <p style="color: #666; margin-bottom: 1rem; font-size: 0.9rem;">Password required to make changes</p>
-      <input type="password" id="passwordInput" placeholder="Enter password" />
-      <div class="error" id="passwordError" style="display: none;">Incorrect password</div>
+      <h3>🔒 AUTHENTICATION REQUIRED</h3>
+      <p style="color: rgba(0,255,255,0.6); margin-bottom: 1rem; font-size: 0.9rem; font-family: 'Courier New', monospace;">Access code needed to modify data</p>
+      <input type="password" id="passwordInput" placeholder="Enter access code..." />
+      <div class="error" id="passwordError" style="display: none;">❌ ACCESS DENIED</div>
       <div class="password-modal-buttons">
-        <button class="btn-cancel" id="passwordCancel">Cancel</button>
-        <button class="btn-submit" id="passwordSubmit">Unlock</button>
+        <button class="btn-cancel" id="passwordCancel">ABORT</button>
+        <button class="btn-submit" id="passwordSubmit">UNLOCK</button>
       </div>
     </div>
   </div>
@@ -868,6 +1127,28 @@ const goals = [
         dayEl.appendChild(dayNumber);
         dayEl.appendChild(dayPercentage);
         
+        // Add task list
+        if (entry) {
+          const taskList = document.createElement('div');
+          taskList.className = 'calendar-day-tasks';
+          
+          const tasks = [
+            { name: 'Training', completed: entry.training },
+            { name: 'Coursera', completed: entry.coursera },
+            { name: 'Duolingo', completed: entry.duolingo },
+            { name: 'Meditation', completed: entry.meditation }
+          ];
+          
+          tasks.forEach(task => {
+            const taskEl = document.createElement('div');
+            taskEl.className = `calendar-day-task ${task.completed ? 'completed' : 'incomplete'}`;
+            taskEl.innerHTML = `<span class="icon">${task.completed ? '✓' : '✗'}</span> ${task.name}`;
+            taskList.appendChild(taskEl);
+          });
+          
+          dayEl.appendChild(taskList);
+        }
+        
         dayEl.addEventListener('click', () => showDayDetails(dateString, entry));
         
         calendarGrid.appendChild(dayEl);
@@ -1004,7 +1285,7 @@ const goals = [
         }
         payload.passwordHash = storedHash;
 
-        const response = await fetch('/api/update', {
+        const response = await fetch('/.netlify/functions/update', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
