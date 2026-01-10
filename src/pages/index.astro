@@ -1030,7 +1030,7 @@ const goals = [
 <body>
   <div class="container">
     <h1>1356</h1>
-    <p style="text-align: center; font-size: 1.8rem; color: #E95420; font-weight: 600; margin: -1rem 0 1rem 0; letter-spacing: 0.15rem; text-shadow: 0 0 15px rgba(233,84,32,0.6); background: rgba(0,0,0,0.4); padding: 0.5rem 1rem; border-radius: 8px; display: inline-block; width: auto;">Day {currentDayNumber} of 1356</p>
+    <p id="day-counter" style="text-align: center; font-size: 1.8rem; color: #E95420; font-weight: 600; margin: -1rem 0 1rem 0; letter-spacing: 0.15rem; text-shadow: 0 0 15px rgba(233,84,32,0.6); background: rgba(0,0,0,0.4); padding: 0.5rem 1rem; border-radius: 8px; display: inline-block; width: auto;">Day {currentDayNumber} of 1356</p>
     <p class="subtitle">Track your daily goals</p>
     
     <div class="view-toggle">
@@ -1141,6 +1141,72 @@ const goals = [
     let currentCalendarMonth = new Date();
     let isAuthenticated = false;
     let pendingAction = null;
+
+    // Client-side Date Validation (Fix for Static Build Stale Date)
+    const clientDate = new Date();
+    // Offset for timezone if needed, but local browser time is usually best for users
+    const clientDateString = clientDate.toLocaleDateString('en-CA'); // YYYY-MM-DD local format
+    const projectStartDate = new Date('2026-01-09');
+    
+    // Override server-provided date if client date is different (e.g. next day)
+    let activeDate = clientDateString;
+    
+    // Update UI elements to reflect client date immediately
+    const daysDiff = Math.floor((new Date(clientDateString).getTime() - projectStartDate.getTime()) / (1000 * 60 * 60 * 24));
+    const dayNum = Math.max(1, Math.min(daysDiff + 1, 1356));
+    
+    // Update Day Counter
+    const dayCounterEl = document.getElementById('day-counter');
+    if (dayCounterEl) {
+        dayCounterEl.textContent = `Day ${dayNum} of 1356`;
+    }
+
+    // Update Date Text
+    const dateTextEl = document.querySelector('.today-date');
+    if (dateTextEl) {
+        dateTextEl.textContent = new Date(clientDateString + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    // Sync form state to the real client date
+    function hydrateFormForDate(dateStr) {
+        const entry = currentData.dailyEntries.find(e => e.date === dateStr);
+        
+        // Helper to safe-set checkbox
+        const setCheck = (id, val) => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.checked = !!val;
+                // Update visual state (card class)
+                const card = document.querySelector(`[data-goal-id="${id.replace('goal-', '')}"]`);
+                if (card) {
+                    if (val) card.classList.add('completed');
+                    else card.classList.remove('completed');
+                }
+            }
+        };
+
+        setCheck('goal-training', entry?.training);
+        setCheck('goal-coursera', entry?.coursera);
+        setCheck('goal-duolingo', entry?.duolingo);
+        setCheck('goal-meditation', entry?.meditation);
+        
+        const commentEl = document.getElementById('dailyComment');
+        if (commentEl) commentEl.value = entry?.comment || '';
+
+        const courseEl = document.getElementById('currentCourse');
+        if (courseEl) courseEl.value = entry?.courseName || '';
+    }
+
+    // Initial Hydration
+    hydrateFormForDate(activeDate);
+
+    // Override todayDate used in other functions
+    // We can't reassign todayDate because it's a const from define:vars? 
+    // Wait, define:vars creates vars in local scope. 
+    // But we need to make sure collectCurrentState uses the correct date.
+    // Let's modify collectCurrentState to use 'activeDate' instead of 'todayDate'.
+    // Or simpler: define 'todayDate' as a let in define:vars? No, Astro controls that.
+    
     
     // SHA-256 hash of the password (not reversible)
     const PASSWORD_HASH = '6829fefe94561a77be3ceaa06999799c532424caaae91f76375966d286a7d501';
@@ -1266,7 +1332,7 @@ const goals = [
         const dayEl = document.createElement('div');
         dayEl.className = 'calendar-day';
         dayEl.setAttribute('data-astro-cid-j7pv25f6', '');
-        if (dateString === todayDate) {
+        if (dateString === activeDate) {
           dayEl.classList.add('today');
         }
         
@@ -1430,11 +1496,11 @@ const goals = [
     // Helper to collect current state
     function collectCurrentState() {
       // Get today's entry or find/create it
-      let todayEntry = currentData.dailyEntries.find(e => e.date === todayDate);
+      let todayEntry = currentData.dailyEntries.find(e => e.date === activeDate);
       
       if (!todayEntry) {
         todayEntry = {
-          date: todayDate,
+          date: activeDate,
           training: false,
           coursera: false,
           duolingo: false,
