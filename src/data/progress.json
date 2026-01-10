@@ -6,7 +6,7 @@
       "training": false,
       "coursera": true,
       "duolingo": true,
-      "meditation": false,
+      "meditation": true,
       "comment": "",
       "courseName": "Python crash course"
     },
