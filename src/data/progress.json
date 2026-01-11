@@ -2,6 +2,15 @@
   "currentCourse": "python crash course",
   "dailyEntries": [
     {
+      "date": "2026-01-11",
+      "training": true,
+      "coursera": false,
+      "duolingo": false,
+      "meditation": false,
+      "comment": "",
+      "courseName": ""
+    },
+    {
       "date": "2026-01-10",
       "training": false,
       "coursera": true,
