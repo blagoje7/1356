@@ -4,11 +4,11 @@
     {
       "date": "2026-01-11",
       "training": true,
-      "coursera": false,
+      "coursera": true,
       "duolingo": false,
       "meditation": false,
       "comment": "",
-      "courseName": ""
+      "courseName": "Python crash course"
     },
     {
       "date": "2026-01-10",
