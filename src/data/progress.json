@@ -5,9 +5,9 @@
       "date": "2026-01-11",
       "training": true,
       "coursera": true,
-      "duolingo": false,
+      "duolingo": true,
       "meditation": false,
-      "comment": "",
+      "comment": "duolingo samo jedna lekcija ali odradjen",
       "courseName": "Python crash course"
     },
     {
