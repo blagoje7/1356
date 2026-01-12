@@ -5,7 +5,7 @@
       "date": "2026-01-12",
       "training": false,
       "coursera": true,
-      "duolingo": false,
+      "duolingo": true,
       "meditation": false,
       "comment": "",
       "courseName": "Python crash course"
