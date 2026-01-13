@@ -5,8 +5,8 @@
       "date": "2026-01-13",
       "training": false,
       "coursera": true,
-      "duolingo": false,
-      "meditation": false,
+      "duolingo": true,
+      "meditation": true,
       "comment": "",
       "courseName": ""
     },
