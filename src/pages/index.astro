@@ -1,33 +1,6 @@
 ---
-import progressData from '../data/progress.json';
-
-const today = new Date().toISOString().split('T')[0];
-const todayEntry = progressData.dailyEntries.find(e => e.date === today);
-const hasToday = !!todayEntry;
-
-// Calculate day number (counting from project start date)
-const projectStartDate = new Date('2026-01-09'); // Adjust this to your actual start date
-const currentDate = new Date(today);
-const daysDiff = Math.floor((currentDate.getTime() - projectStartDate.getTime()) / (1000 * 60 * 60 * 24));
-const currentDayNumber = Math.max(1, Math.min(daysDiff + 1, 1356));
-
-// If no entry for today, create a default one
-const currentEntry = hasToday ? { ...todayEntry, courseName: (todayEntry as any).courseName || '' } : {
-  date: today,
-  training: false,
-  coursera: false,
-  duolingo: false,
-  meditation: false,
-  comment: '',
-  courseName: ''
-};
-
-const goals = [
-  { id: 'training', name: 'Training', completed: currentEntry.training },
-  { id: 'coursera', name: 'Coursera Course', completed: currentEntry.coursera },
-  { id: 'duolingo', name: 'Duolingo', completed: currentEntry.duolingo },
-  { id: 'meditation', name: 'Meditation', completed: currentEntry.meditation }
-];
+// No server-side data loading - all data will be fetched client-side
+const projectStartDate = '2026-01-09';
 ---
 
 <!doctype html>
@@ -35,7 +8,7 @@ const goals = [
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Day {currentDayNumber} of 1356 - Progress Tracker</title>
+  <title>1356 - Progress Tracker</title>
   <style>
     * {
       margin: 0;
@@ -1030,7 +1003,7 @@ const goals = [
 <body>
   <div class="container">
     <h1>1356</h1>
-    <p id="day-counter" style="text-align: center; font-size: 1.8rem; color: #E95420; font-weight: 600; margin: -1rem 0 1rem 0; letter-spacing: 0.15rem; text-shadow: 0 0 15px rgba(233,84,32,0.6); background: rgba(0,0,0,0.4); padding: 0.5rem 1rem; border-radius: 8px; display: inline-block; width: auto;">Day {currentDayNumber} of 1356</p>
+    <p id="day-counter" style="text-align: center; font-size: 1.8rem; color: #E95420; font-weight: 600; margin: -1rem 0 1rem 0; letter-spacing: 0.15rem; text-shadow: 0 0 15px rgba(233,84,32,0.6); background: rgba(0,0,0,0.4); padding: 0.5rem 1rem; border-radius: 8px; display: inline-block; width: auto;">Loading...</p>
     <p class="subtitle">Track your daily goals</p>
     
     <div class="view-toggle">
@@ -1039,44 +1012,60 @@ const goals = [
     </div>
 
     <div class="today-view" id="todayView">
-      <p class="today-date">{new Date(today).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+      <p class="today-date">Loading...</p>
 
     <div class="goals-grid" id="goalsGrid">
-      {goals.map((goal) => (
-        <div class="goal-card" data-goal-id={goal.id} class:list={[{ completed: goal.completed }]}>
-          <div class:list={["goal-header", { "with-input": goal.id === 'coursera' }]}>
-            <div class="goal-left">
-              <div class="checkbox-wrapper">
-                <input 
-                  type="checkbox" 
-                  id={`goal-${goal.id}`}
-                  data-goal-id={goal.id}
-                  checked={goal.completed}
-                />
-              </div>
-              <span class="goal-name">{goal.name}</span>
+      <div class="goal-card" data-goal-id="training">
+        <div class="goal-header">
+          <div class="goal-left">
+            <div class="checkbox-wrapper">
+              <input type="checkbox" id="goal-training" data-goal-id="training" />
             </div>
-            {goal.id === 'coursera' && (
-              <div class="goal-input-inline">
-                <input 
-                  type="text" 
-                  id="currentCourse" 
-                  placeholder="Course name..."
-                  value={currentEntry.courseName || ''}
-                />
-              </div>
-            )}
+            <span class="goal-name">Training</span>
           </div>
         </div>
-      ))}
+      </div>
+      
+      <div class="goal-card" data-goal-id="coursera">
+        <div class="goal-header with-input">
+          <div class="goal-left">
+            <div class="checkbox-wrapper">
+              <input type="checkbox" id="goal-coursera" data-goal-id="coursera" />
+            </div>
+            <span class="goal-name">Coursera Course</span>
+          </div>
+          <div class="goal-input-inline">
+            <input type="text" id="currentCourse" placeholder="Course name..." />
+          </div>
+        </div>
+      </div>
+      
+      <div class="goal-card" data-goal-id="duolingo">
+        <div class="goal-header">
+          <div class="goal-left">
+            <div class="checkbox-wrapper">
+              <input type="checkbox" id="goal-duolingo" data-goal-id="duolingo" />
+            </div>
+            <span class="goal-name">Duolingo</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="goal-card" data-goal-id="meditation">
+        <div class="goal-header">
+          <div class="goal-left">
+            <div class="checkbox-wrapper">
+              <input type="checkbox" id="goal-meditation" data-goal-id="meditation" />
+            </div>
+            <span class="goal-name">Meditation</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="comment-section">
       <h2>Daily Notes</h2>
-      <textarea 
-        id="dailyComment" 
-        placeholder="How did today go? Any thoughts or reflections..."
-      >{currentEntry.comment}</textarea>
+      <textarea id="dailyComment" placeholder="How did today go? Any thoughts or reflections..."></textarea>
     </div>
 
     <button class="sync-button" id="syncButton">
@@ -1133,7 +1122,36 @@ const goals = [
     </div>
   </div>
 
-  <script is:inline define:vars={{ initialData: progressData, todayDate: today, initialEntry: currentEntry }}>
+  <script is:inline define:vars={{ projectStartDate: projectStartDate }}>
+    // GitHub raw URL for progress.json
+    const REPO_OWNER = 'blagojestojsavljevic'; // TODO: Update with your GitHub username
+    const REPO_NAME = '1356'; // TODO: Update with your repo name
+    const BRANCH = 'main';
+    const DATA_URL = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}/src/data/progress.json`;
+    
+    let initialData = null;
+    let isDataLoaded = false;
+    
+    // Load data from GitHub
+    async function loadProgressData() {
+      try {
+        const response = await fetch(DATA_URL + '?t=' + Date.now()); // Cache bust
+        if (!response.ok) throw new Error('Failed to fetch data');
+        initialData = await response.json();
+        isDataLoaded = true;
+        return initialData;
+      } catch (error) {
+        console.error('Error loading progress data:', error);
+        // Fallback to empty data structure
+        initialData = { dailyEntries: [] };
+        isDataLoaded = true;
+        return initialData;
+      }
+    }
+    
+    // Initialize app after data loads
+    async function initializeApp() {
+      await loadProgressData();
     let currentData = JSON.parse(JSON.stringify(initialData));
     let isSyncing = false;
     let syncTimeout = null;
@@ -1648,6 +1666,14 @@ const goals = [
       }
       await autoSync();
     });
+    }
+    
+    // Start the app when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeApp);
+    } else {
+      initializeApp();
+    }
   </script>
 </body>
 </html>
