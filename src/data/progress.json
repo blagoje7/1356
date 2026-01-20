@@ -1,68 +1,13 @@
 {
-  "currentCourse": "python crash course",
   "dailyEntries": [
     {
-      "date": "2026-01-15",
+      "date": "2026-01-20",
       "training": false,
       "coursera": false,
       "duolingo": true,
       "meditation": true,
       "comment": "",
-      "courseName": "Python crash course"
-    },
-    {
-      "date": "2026-01-14",
-      "training": true,
-      "coursera": true,
-      "duolingo": true,
-      "meditation": false,
-      "comment": "",
-      "courseName": "python operating system connection "
-    },
-    {
-      "date": "2026-01-13",
-      "training": false,
-      "coursera": true,
-      "duolingo": true,
-      "meditation": true,
-      "comment": "",
       "courseName": ""
-    },
-    {
-      "date": "2026-01-12",
-      "training": false,
-      "coursera": true,
-      "duolingo": true,
-      "meditation": true,
-      "comment": "Ceo modul u kursu!",
-      "courseName": "Python crash course"
-    },
-    {
-      "date": "2026-01-11",
-      "training": true,
-      "coursera": true,
-      "duolingo": true,
-      "meditation": true,
-      "comment": "duolingo samo jedna lekcija ali odradjeni sati kursa, predjena 2 modula",
-      "courseName": "Python crash course"
-    },
-    {
-      "date": "2026-01-10",
-      "training": false,
-      "coursera": true,
-      "duolingo": true,
-      "meditation": true,
-      "comment": "crushed course",
-      "courseName": "Python crash course"
-    },
-    {
-      "date": "2026-01-09",
-      "training": true,
-      "coursera": true,
-      "duolingo": true,
-      "meditation": true,
-      "comment": "Trening zavrsen sa fizioteraapeutskim vezbama za rame.\nCourse is \"python crash course\".\n",
-      "courseName": "Python crash course"
     }
   ]
 }
